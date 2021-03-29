@@ -29,6 +29,6 @@ jobs:
       uses: docker/build-push-action@v2.3.0
       with:
         #build-args: nginx_version=1.19.8-alpine
-        tags: ${{ secrets.DOCKERHUB_USER }}/mastro-ui:$(date +%s)
+        tags: $(date +%s), latest
         push: true
         github-token: ${{ secrets.DOCKERHUB_TOKEN }}
