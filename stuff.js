@@ -18,7 +18,12 @@ $(document).ready(function(){
                 { data: 'last-discovered-at' },
                 { data: 'published-on' },
                 { data: 'description' },
-                { data: 'depends-on' }
+                { data: 'depends-on' },
+                { data: "tags[, ]"},
+                { 
+                    data: 'labels',
+                    defaultContent: "-"
+                }
             ]
         }
     );
@@ -28,10 +33,26 @@ $(document).ready(function(){
         $("#welcome").hide();
         $('#query').html($(".form-control").val());
         datatable.clear();
+
+        // if 1 element in form - query by name
+        var tags = $(".form-control").val().split(",");
+        if(tags.length > 1){
+            for (var i = 0; i < tags.length; i++) {
+                tags[i] = tags[i].trim();
+            }
+            var url = config.catalogue.endpoint+"/assets/tags";
+            //var payload = { "tags": tags };
+            var payload = JSON.stringify({ tags: tags })
+        }else{
+            var url = config.catalogue.endpoint+"/asset/name/"+tags[0];
+            var payload = null;
+        }
+        console.log(payload);
         $.ajax({ 
+            contentType: "application/json; charset=utf-8",
             type: 'GET', 
-            url: config.catalogue.endpoint+"name/"+$(".form-control").val(), 
-            data: null, 
+            url: url, 
+            data: payload, 
             dataType: 'json',
             success: function (data) {
                 if (data.constructor == Object) {
@@ -44,6 +65,7 @@ $(document).ready(function(){
                 datatable.draw();
             },
             error : function(data) {
+                console.log(data);
                 $('#searchcount').html(0);
                 datatable.draw();
             }
