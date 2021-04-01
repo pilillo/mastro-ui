@@ -30,47 +30,53 @@ $(document).ready(function(){
 
     var search = function (event) {
         event.preventDefault();
-        $("#welcome").hide();
-        $('#query').html($(".form-control").val());
-        datatable.clear();
+        $('#query').html("\""+$(".form-control").val()+"\"");
 
-        // if 1 element in form - query by name
-        var tags = $(".form-control").val().split(",");
-        if(tags.length > 1){
-            for (var i = 0; i < tags.length; i++) {
-                tags[i] = tags[i].trim();
-            }
-            var url = config.catalogue.endpoint+"/assets/tags";
-            //var payload = { "tags": tags };
-            var payload = JSON.stringify({ tags: tags })
-        }else{
-            var url = config.catalogue.endpoint+"/asset/name/"+tags[0];
-            var payload = null;
-        }
-        console.log(payload);
-        $.ajax({ 
-            contentType: "application/json; charset=utf-8",
-            type: 'GET', 
-            url: url, 
-            data: payload, 
-            dataType: 'json',
-            success: function (data) {
-                if (data.constructor == Object) {
-                    $("#searchcount").html(1);
-                    datatable.rows.add([data]);
-                }else{
-                    $("#searchcount").html(data.length);
-                    datatable.rows.add(data);
+        var query = $(".form-control").val()
+        if (query !== null && query !== '') {
+            $("#welcome").hide();
+            datatable.clear();
+            var elements = query.split(",");
+            // get by name is 1 element only without #
+            if(elements.length == 1 && !elements[0].includes("#")) {
+                var url = config.catalogue.endpoint+"/asset/name/"+elements[0];
+                var payload = null;
+                var verb = 'GET';
+            }else{
+                // we either have a list of tags (>1) or whatever having # inside
+                for (var i = 0; i < elements.length; i++) {
+                    elements[i] = elements[i].trim().replace("#", "");
                 }
-                datatable.draw();
-            },
-            error : function(data) {
-                console.log(data);
-                $('#searchcount').html(0);
-                datatable.draw();
-            }
-        });
-        $("#searchresults").show();
+                var url = config.catalogue.endpoint+"/assets/tags";
+                var payload = JSON.stringify({ tags: elements })
+                var verb = 'POST';
+            }      
+            
+            console.log(payload);
+            $.ajax({ 
+                contentType: "application/json; charset=utf-8",
+                type: verb, 
+                url: url, 
+                data: payload, 
+                dataType: 'json',
+                success: function (data) {
+                    if (data.constructor == Object) {
+                        $("#searchcount").html(1);
+                        datatable.rows.add([data]);
+                    }else{
+                        $("#searchcount").html(data.length);
+                        datatable.rows.add(data);
+                    }
+                    datatable.draw();
+                },
+                error : function(data) {
+                    console.log(data);
+                    $('#searchcount').html(0);
+                    datatable.draw();
+                }
+            });
+            $("#searchresults").show();
+        }
     };
     
     $( "#searchBtn" ).click(search);
