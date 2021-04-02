@@ -18,7 +18,9 @@ $(document).ready(function(){
                 { data: 'last-discovered-at' },
                 { data: 'published-on' },
                 { data: 'description' },
-                { data: 'depends-on' },
+                { 
+                    data: 'depends-on[, ]' 
+                },
                 { 
                     data: "tags[, ]"
                 },
@@ -27,7 +29,8 @@ $(document).ready(function(){
                     data: 'labels',
                     defaultContent: "-",
                     render: function ( data, type, row ) {
-                        return JSON. stringify(data);
+                        //return JSON.stringify(data, null, 2);
+                        return prettyPrintJson.toHtml(data);
                     },
                 }
             ]
