@@ -19,14 +19,21 @@ $(document).ready(function(){
                 { data: 'published-on' },
                 { data: 'description' },
                 { data: 'depends-on' },
-                { data: "tags[, ]"},
                 { 
+                    data: "tags[, ]"
+                },
+                { 
+                    //class: '',
                     data: 'labels',
-                    defaultContent: "-"
+                    defaultContent: "-",
+                    render: function ( data, type, row ) {
+                        return JSON. stringify(data);
+                    },
                 }
             ]
         }
     );
+    $('thead th').removeClass('label label-default');
 
     var search = function (event) {
         event.preventDefault();
@@ -52,7 +59,6 @@ $(document).ready(function(){
                 var verb = 'POST';
             }      
             
-            console.log(payload);
             $.ajax({ 
                 contentType: "application/json; charset=utf-8",
                 type: verb, 
@@ -69,8 +75,10 @@ $(document).ready(function(){
                     }
                     datatable.draw();
                 },
-                error : function(data) {
-                    console.log(data);
+                error : function(jqXHR, textStatus, errorThrown) {
+                    if(jqXHR.status == 0){
+                        alert("Error :: Impossible connecting to target service at "+url);
+                    }
                     $('#searchcount').html(0);
                     datatable.draw();
                 }
